@@ -54,7 +54,7 @@ def input_usr_pwd(username,password):
                     array.append(each_line)
             else:
                 array.append(each_line)
-    print(array)
+    #print(array)
     codecs.open('%s/.hg/hgrc'%currentPath, 'w','utf-8').writelines(array)
 
 def changeXcodeProjConfigAboutProvisioning():
@@ -123,11 +123,13 @@ def build_each_project(project):
 def buildApp():
     os.system('rm -rf %s/APP/build'%currentPath)
     os.chdir('%s/APP'%currentPath)
-    os.system("xcodebuild -project APP.xcodeproj -sdk iphoneos -target APP -configuration Release CODE_SIGN_IDENTITY=\"iPhone Distribution: Beijing RYTong Information Technology Co. Ltd.\" clean build")
-    os.system("xcrun -sdk iphoneos PackageApplication -v \"/Users/xiepingjia/work/empBao/APP/build/Release-iphoneos/APP.app\" -o \"/Users/xiepingjia/Desktop/node/aaa.ipa\" --sign \"iPhone Distribution: Beijing RYTong Information Technology Co. Ltd.\" --embed \"/Users/xiepingjia/Downloads/emasdis/emasdis.mobileprovision\"")
+    #os.system("xcodebuild clean");
+    os.system("xcodebuild clean -project APP.xcodeproj -sdk iphoneos -target APP -configuration Release build")
+    #appToIpaFile()
+    os.system("xcrun -sdk iphoneos PackageApplication -v \"/Users/xiepingjia/work/emp5.1std/APP/build/Release-iphoneos/APP.app\" -o \"/Users/xiepingjia/Desktop/node/aaa.ipa\" --sign \"iPhone Distribution: Beijing RYTong Information Technology Co. Ltd.\" --embed \"/Users/xiepingjia/Downloads/emasdis/emasdis.mobileprovision\"")
     
 def appToIpaFile():
-    os.chdir('/Users/xiepingjia/work/empBao')
+    os.chdir('/Users/xiepingjia/work/emp5.1std')
     os.system('rm -rf APP/Payload')
     os.system('mkdir APP/Payload')
     os.system('cp -r APP/build/Release-iphoneos/APP.app APP/Payload/')
@@ -135,16 +137,16 @@ def appToIpaFile():
     os.system('open /Users/xiepingjia/Desktop/node/')
 
 def prepareSth():
-    input_usr_pwd(username1,password1)
-    updateFromHG()
-    project = ("JSONParser","Utility","XMLParser","DataBase","Network","FilesUpdate","Encrypt","UIKitAdditions","LUAScript","ControlAdditions","Control","ClassScriptParser","PreView","UserBehaviourAnalyse","XMPP")
+    #input_usr_pwd(username1,password1)
+    #updateFromHG()
+    project = ("JSONParser","Utility","XMLParser","DataBase","Network","FilesUpdate","Encrypt","UIKitAdditions","LUAScript","ControlAdditions","Control","ClassScriptParser","PreView","UserBehaviourAnalyse","XMPP","TwoDimensionCode")
     build_each_project(project)
 
-
-prepareSth()
+#updateFromHG();
+#prepareSth()
 #changeXcodeProjConfigAboutProvisioning()
 #change_info_plist(BundleIdentifier1,BundleDisplayName1,BundleVersion1)
-#buildApp()
+buildApp()
 #change_info_plist()
 
 
@@ -162,7 +164,7 @@ appname = 'ebank'
 def changeConfig():
     with codecs.open('Config.h', 'r', 'utf-8') as the_file:
         for each_line in the_file:
-            if each_line.find('define NATIVE_DEVELOP') >= 1
+            if each_line.find('define NATIVE_DEVELOP') >= 1:
                 temp = '//    #define NATIVE_DEVELOP'
                 array.append(temp)
             if isOpenAnalyse == 1:
