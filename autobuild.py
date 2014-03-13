@@ -1,7 +1,8 @@
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"""                     Rytong.BuildApp               """
-"""                                                   """
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""[
+          Rytong.BuildApp        
+    Created by xie.pignjia on 14-10-3.
+]
+"""
 
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
@@ -19,8 +20,19 @@ BundleDisplayName1 = "dsad"
 BundleVersion1 = "sdf"
 """---------------------------------------------------"""
 os.chdir(os.pardir)
+os.chdir(os.pardir)
 currentPath = os.getcwd()
 
+AppNames            = ("ebank1","ebank2","ebank3","ebank4")
+configNames         = ("config1.h","config2.h","config3.h","config4.h")
+bundleIdentifiers   = ("emas.dis.ebank1","emas.dis.ebank2","emas.dis.ebank3","emas.dis.ebank4")
+bundleDisplayNames  = ("my bank1","my bank2","my bank3","my bank4")
+bundleVersions      = ("1.0.1","1.0.2","1.0.2","1.0.2")
+
+
+projects = ("JSONParser","Utility","XMLParser","DataBase","Network","FilesUpdate","Encrypt",
+            "UIKitAdditions","LUAScript","ControlAdditions","Control","ClassScriptParser",
+            "PreView","UserBehaviourAnalyse","XMPP","TwoDimensionCode")
 
 
 print currentPath
@@ -57,7 +69,7 @@ def input_usr_pwd(username,password):
     #print(array)
     codecs.open('%s/.hg/hgrc'%currentPath, 'w','utf-8').writelines(array)
 
-def changeXcodeProjConfigAboutProvisioning():
+def resetXcodeProjConfigAboutProvisioning():
     array = []
     #os.chdir('/Users/xiepingjia/work/empBao/APP/APP.xcodeproj')
     filePath = '%s/APP/APP.xcodeproj/project.pbxproj'%currentPath
@@ -88,7 +100,7 @@ def change_info_plist(BundleIdentifier,BundleDisplayName,BundleVersion):
             elif each_line.find('CFBundleDisplayName') >= 1:
                 isFindName = 1
                 array.append(each_line)
-            elif each_line.find('CFBundleVersion') >= 1:
+            elif each_line.find('CFBundleShortVersionString') >= 1:
                 isVersion = 1
                 array.append(each_line)
             else:
@@ -120,13 +132,15 @@ def build_each_project(project):
         os.system('xcodebuild -project %s.xcodeproj -sdk iphoneos -target %s -configuration Release clean build'%(each_project,each_project))
 
     
-def buildApp():
+def buildEachApp(appName):
     os.system('rm -rf %s/APP/build'%currentPath)
     os.chdir('%s/APP'%currentPath)
-    #os.system("xcodebuild clean");
     os.system("xcodebuild clean -project APP.xcodeproj -sdk iphoneos -target APP -configuration Release build")
-    #appToIpaFile()
-    os.system("xcrun -sdk iphoneos PackageApplication -v \"/Users/xiepingjia/work/emp5.1std/APP/build/Release-iphoneos/APP.app\" -o \"/Users/xiepingjia/Desktop/node/aaa.ipa\" --sign \"iPhone Distribution: Beijing RYTong Information Technology Co. Ltd.\" --embed \"/Users/xiepingjia/Downloads/emasdis/emasdis.mobileprovision\"")
+    inputUrl = "%s/APP/build/Release-iphoneos/APP.app"%currentPath
+    outputUrl = "%s/APP/autoBuild/output/%s.ipa"%(currentPath,appName)
+    embedUrl = "%s/APP/autoBuild/input/emasdis.mobileprovision"%currentPath
+    signName = "iPhone Distribution: Beijing RYTong Information Technology Co. Ltd."
+    os.system("xcrun -sdk iphoneos PackageApplication -v \"%s\" -o \"%s\" --sign \"%s\" --embed \"%s\""%(inputUrl,outputUrl,signName,embedUrl))
     
 def appToIpaFile():
     os.chdir('/Users/xiepingjia/work/emp5.1std')
@@ -139,16 +153,37 @@ def appToIpaFile():
 def prepareSth():
     #input_usr_pwd(username1,password1)
     #updateFromHG()
-    project = ("JSONParser","Utility","XMLParser","DataBase","Network","FilesUpdate","Encrypt","UIKitAdditions","LUAScript","ControlAdditions","Control","ClassScriptParser","PreView","UserBehaviourAnalyse","XMPP","TwoDimensionCode")
-    build_each_project(project)
+    build_each_project(projects)
+    
+def updateConfigFile(configName):
+    appConfigPath = "%s/APP/Config.h"%currentPath
+    newConfigPath = "%s/APP/autoBuild/input/config/%s"%(currentPath,configName)
+    #print(path)
+    array = []
+    with codecs.open(newConfigPath, 'r', 'utf-8') as the_file:
+        for each_line in the_file:
+            print(each_line)
+            array.append(each_line)
 
+    codecs.open(appConfigPath, 'w','utf-8').writelines(array)
+    
+def buildAllApps(AppNames):
+    i = 0
+    for each_name in AppNames:
+        updateConfigFile(configNames[i])
+        change_info_plist(bundleIdentifiers[i],bundleDisplayNames[i],bundleVersions[i])
+        buildEachApp(each_name)
+        i = i + 1
+        
+
+    
 #updateFromHG();
 #prepareSth()
-#changeXcodeProjConfigAboutProvisioning()
+#resetXcodeProjConfigAboutProvisioning()
 #change_info_plist(BundleIdentifier1,BundleDisplayName1,BundleVersion1)
-buildApp()
+#buildApp()
 #change_info_plist()
-
+buildAllApps(AppNames)
 
 #os.system('rm -rf /Users/xiepingjia/work/empBao/APP/build')
 #os.chdir('/Users/xiepingjia/work/empBao/APP')
@@ -158,32 +193,11 @@ buildApp()
 #appToIpaFile()
 #os.system('sh build_fake_framework.sh')
 #os.system('88632930')
+#changeConfig()
 isOpenAnalyse = 0
 appname = 'ebank'
 
-def changeConfig():
-    with codecs.open('Config.h', 'r', 'utf-8') as the_file:
-        for each_line in the_file:
-            if each_line.find('define NATIVE_DEVELOP') >= 1:
-                temp = '//    #define NATIVE_DEVELOP'
-                array.append(temp)
-            if isOpenAnalyse == 1:
-                if each_line.find('define START_USER_BEHAVIOUR_ANALYSE') >= 1:
-                    temp = "//    #define START_USER_BEHAVIOUR_ANALYSE"
-                    array.append(temp)
-            if each_line.find('define APP_NAME') >= 1:
-                temp = "    #define APP_NAME @\"%s\""%appname
-                array.append(temp)
-            if each_line.find('TEMPLATEMODE') >= 1:
-                temp = "\t//#define TEMPLATEMODE\n"
-                array.append(temp)
-            elif each_line.find('define START_USER_BEHAVIOUR_ANALYSE') >= 1:
-                temp = "//    #define START_USER_BEHAVIOUR_ANALYSE"
-                array.append(temp)
-            else:
-                array.append(each_line) 
 
-    codecs.open('Config1.h', 'w','utf-8').writelines(array)
 #pVrint(array)
 
 
